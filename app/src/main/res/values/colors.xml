@@ -1,6 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+
+    <color name="colorWhite">#FFF</color>
+    <color name="colorPrimary">#4E342E</color>
+    <color name="colorPrimaryDark">#3E2723</color>
+    <color name="colorPrimaryLight">#CFD8DC</color>
+    <color name="colorAccent">#FFCA28</color>
+    <color name="colorAccentFF">#8040C4FF</color>
+    <color name="colorTextPrimary">#fff</color>
+    <color name="colorTextSecondary">#727272</color>
+
+    <color name="colorTextPrimaryDARK">#FAFAFA</color>
+    <color name="colorTextSecondaryDARK">#EEEEEE</color>
+    <color name="colorBackgroundDARK">#795548</color>
+    <color name="colorBgGris">#616161</color>
+
+
+    <color name="colorBackground">#795548</color>
+    <color name="coloGrisClaro">#F5F5F5</color>
+    <color name="colorGris700">#757575</color>
+    <!--E8EAF6 previus background -->
+
+    <!-- Colors RC BG MENU -->
+    <color name="colorBgRcMenu">#5D4037</color>
+
+
+    <!-- Colors MENUUUUU -->
+    <color name="colorTextMenuGreen">#09b985</color>
+    <color name="colorTextMenuYellow">#cb901d</color>
+    <color name="colorTextMenuRed">#e20f0f</color>
+    <color name="colorTextMenuBlue">#1977c7</color>
+
+
+    <color name="event_color_01">#59dbe0</color>
+    <color name="event_color_02">#f57f68</color>
+    <color name="event_color_03">#87d288</color>
+    <color name="event_color_04">#f8b552</color>
+
+    <color name="ut_examen_color">#3F51B5</color>
+    <color name="ut_expo_color">#5C6BC0</color>
+    <color name="ut_taller_color">#7986CB</color>
+    <color name="ut_otro_color">#9FA8DA</color>
+
+
+    <!-- Para los botones flotantes -->
+    <color name="flotante_msj">#603E2723</color>
+    <color name="flotante_home">#FFCA28</color>
+
+
+    <!-- Material COlors -->
+    <color name="teal300">#4DB6AC</color>
+    <color name="teal500">#009688</color>
+    <color name="teal600">#00897B</color>
+    <color name="teal800">#00695C</color>
+
+    <color name="tealA400">#1DE9B6</color>
+    <color name="tealA700">#00BFA5</color>
+
+    <color name="red500">#F44336</color>
+    <color name="red600">#E53935</color>
+    <color name="redA700">#D50000</color>
+
 </resources>
