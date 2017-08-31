@@ -1,10 +1,7 @@
 package com.devs.cnd.marvelousv.acts;
 
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -15,8 +12,9 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -30,6 +28,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.devs.cnd.marvelousv.R;
+import com.devs.cnd.marvelousv.aplication.MyApp;
+import com.devs.cnd.marvelousv.dialogs.DialogWBAdd;
+import com.devs.cnd.marvelousv.dialogs.DialogWBWAdd;
+import com.devs.cnd.marvelousv.events.ClickCallBackMain;
+import com.devs.cnd.marvelousv.fragments.FrAllWbWords;
+import com.devs.cnd.marvelousv.fragments.FrWbWords;
+import com.devs.cnd.marvelousv.fragments.FrWordboxes;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
@@ -38,13 +44,12 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserInfo;
-
-import java.util.ArrayList;
 
 public class ActMain extends AppCompatActivity
-                        implements NavigationView.OnNavigationItemSelectedListener{
+                        implements NavigationView.OnNavigationItemSelectedListener,
+        ClickCallBackMain{
 
+    private MyApp myApp;
     private int SPLASH_TIME = 3000;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -63,15 +68,24 @@ public class ActMain extends AppCompatActivity
     private Toolbar mToolbar;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
+    private ImageView imgViewChanger;
+
+    // Var FRAGMENT TYPE
+    private int FR_WORDBOXES= 3001, FR_WB_WORDS=3002, FR_ALL_WB_WORDS=3003;
+
+    // VAR ON BACK PRESS
+    private int stateBackPress=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_main);
 
+        myApp = (MyApp) this.getApplicationContext();
         mAuth = FirebaseAuth.getInstance();
 
         iniGoogle();
+
         iniCoordinator();
         iniToolBar();
         iniNavDrawer();
@@ -79,6 +93,11 @@ public class ActMain extends AppCompatActivity
 
         mCollapsingToolbarLayout.setTitle(getResources().getString(R.string.app_name));
         mAppBarLayout.setExpanded(false,false);
+        mAppBarLayout.setActivated(false);
+        mCollapsingToolbarLayout.setActivated(false);
+
+        fragmentChanger(FR_WORDBOXES);
+        fabChanger(FR_WORDBOXES);
     }
 
     /******* AUTH CHECKING     ***********/
@@ -110,35 +129,48 @@ public class ActMain extends AppCompatActivity
 
         } else {
             Log.d(TAG,"Sign IN Good");
-            TextView textHello = (TextView)findViewById(R.id.textHello);
+            //TextView textHello = (TextView)findViewById(R.id.textHello);
 
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             String LoginProvider =prefs.getString("LoginProvider",null);
 
-            textHello.setText(LoginProvider+"\n"+ user.getDisplayName()+"\n"+user.getEmail()+"\n"+user.getProviderId()+"\n"+
-            user.getProviderData());
+            /*textHello.setText(LoginProvider+"\n"+
+                    user.getDisplayName()+"\n"+
+                    user.getEmail()+"\n"+
+                    user.getProviderId()+"\n"+
+            user.getProviderData());*/
 
         }
     }
     private void signOut() {
         // Firebase sign out
         mAuth.signOut();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String LoginProvider =prefs.getString("LoginProvider","DEFAULT");
+
+        if(LoginProvider.equals("Facebook"))
+            LoginManager.getInstance().logOut();
 
         // Google sign out
-        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+        if(LoginProvider.equals("Google"))
+            Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
                 new ResultCallback<Status>() {
                     @Override
                     public void onResult(@NonNull Status status) {
-                        updateUI(null);
+
                     }
                 });
+
+        updateUI(null);
     }
+
     /******* LAYOUT INICIALIZATION  ******/
     public  void iniCoordinator(){
         //Grupo de Coordinacion para la actividad Base
         mCoordinator = (CoordinatorLayout) findViewById(R.id.root_coordinator);
         mCollapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar_layout);
         mAppBarLayout=(AppBarLayout)findViewById(R.id.app_bar_layout);
+        imgViewChanger=(ImageView)findViewById(R.id.imgViewChanger);
     }
     public void iniToolBar(){
         mToolbar = (Toolbar) findViewById(R.id.app_bar);
@@ -194,6 +226,149 @@ public class ActMain extends AppCompatActivity
                         .setAction("Action", null).show();
             }
         });
+
+
+        /* mFab.setOnTouchListener(new View.OnTouchListener() {
+
+            float startX;
+            float startRawX;
+            float distanceX;
+            //int lastAction;
+
+            float dX;
+            float dY;
+            int lastAction;
+
+
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        dX = view.getX() - event.getRawX();
+                        dY = view.getY() - event.getRawY();
+                        lastAction = MotionEvent.ACTION_DOWN;
+                        break;
+
+                    case MotionEvent.ACTION_MOVE:
+                        view.setY(event.getRawY() + dY);
+                        view.setX(event.getRawX() + dX);
+                        lastAction = MotionEvent.ACTION_MOVE;
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        if (lastAction == MotionEvent.ACTION_DOWN)
+                            Toast.makeText(ActMain.this, "Clicked!", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    default:
+                        return false;
+                }
+                return true;
+            }
+
+
+        });*/
+    }
+
+
+    /******* FAB BT CHANGER   *****/
+    public void fabChanger(int where){
+        if(where==FR_WORDBOXES){
+            mFab.setVisibility(View.VISIBLE);
+            mFab.setImageResource(R.drawable.ic_add_white_24dp);
+            mFab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    DialogWBAdd dialogWBAdd = new DialogWBAdd();
+
+
+                    //OP1:
+                    //FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    //transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    //transaction.add(android.R.id.content, newFragment).commit();
+
+                    //OP2:
+                    dialogWBAdd.show(fragmentManager, "dialog");
+
+                    //OP3
+                    // The device is smaller, so show the fragment fullscreen
+                   /* FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    // For a little polish, specify a transition animation
+                    transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    // To make it fullscreen, use the 'content' root view as the container
+                    // for the fragment, which is always the root view for the activity
+                    transaction.add(R.id.drawer_layout, dialogWBAdd)
+                            .addToBackStack(null)
+                            .commit();*/
+
+                    Snackbar.make(v, "New Wordbox", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+            });
+        }
+    }
+    public void fabChanger(int where, final String id){
+        if(where==FR_WB_WORDS){
+            mFab.setVisibility(View.VISIBLE);
+            mFab.setImageResource(R.drawable.ic_add_white_24dp);
+            mFab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    DialogWBWAdd dialogWBWAdd = new DialogWBWAdd();
+                    dialogWBWAdd.setWBId(id);
+
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    transaction.add(R.id.drawer_layout, dialogWBWAdd)
+                            .addToBackStack(null).commit();
+
+                    Snackbar.make(v, "New Word", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+            });
+        }
+    }
+    /******* FRAGMENT CHANGER ****/
+
+    public void fragmentChanger(int where) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if (where==FR_WORDBOXES) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.contenedor_base, FrWordboxes.newInstance())
+                    .commit();
+        }
+        else if (where==FR_ALL_WB_WORDS) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.contenedor_base, FrAllWbWords.newInstance())
+                    .commit();
+        }
+    }
+    public void fragmentChanger(int where, String id){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if (where==FR_WB_WORDS) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.contenedor_base, FrWbWords.newInstance(id))
+                    .commit();
+        }
+    }
+
+    /******** BACK PRESS MEMORY **********/
+    @Override
+    public void onBackPressed() {
+        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        }else if(stateBackPress==FR_WB_WORDS){
+            stateBackPress=0;
+            mCollapsingToolbarLayout.setTitle(getResources().getString(R.string.app_name));
+            //mAppBarLayout.setExpanded(true,true);
+            fragmentChanger(FR_WORDBOXES);
+            fabChanger(FR_WORDBOXES);
+        }
+
+        else{
+            super.onBackPressed();}
     }
 
 
@@ -213,16 +388,24 @@ public class ActMain extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.navigation_item_1) {
-            mAppBarLayout.setExpanded(true, true);
+           // mAppBarLayout.setExpanded(true, true);
             mCollapsingToolbarLayout.setTitle(getResources().getString(R.string.app_name));
-           // fragmentChanger("menu");
+            fragmentChanger(FR_WORDBOXES);
+            fabChanger(FR_WORDBOXES);
+            stateBackPress=0;
         } else if (id == R.id.navigation_item_2) {
            // stateBackPress=1000;
            // mAppBarLayout.setExpanded(false, true);
            // mCollapsingToolbarLayout.setTitle(getResources().getString(R.string.app_name));
-           // mCollapsingToolbarLayout.setTitle("Fan Page Fiends");
-           // fragmentChanger("web");
-        }else if (id== R.id.nav_logout){
+            mCollapsingToolbarLayout.setTitle("All Words");
+            fragmentChanger(FR_ALL_WB_WORDS);
+            stateBackPress=0;
+        }else if(id == R.id.navigation_item_3){
+
+
+
+        }
+        else if (id== R.id.nav_logout){
             signOut();
         }
         //stateBackPress=0;
@@ -232,7 +415,7 @@ public class ActMain extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_act_main, menu);
+        //getMenuInflater().inflate(R.menu.menu_act_main, menu);
         return true;
     }
     @Override
@@ -250,14 +433,29 @@ public class ActMain extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+
+    /******************* CLICKCALL BACK INTERFACE ***************/
+    @Override
+    public void onWordBoxOpen(String id) {
+
+        fragmentChanger(FR_WB_WORDS,id);
+        fabChanger(FR_WB_WORDS,id);
+        mCollapsingToolbarLayout.setTitle(myApp.wordboxes.getBoxName(id));
+        stateBackPress=FR_WB_WORDS;
+    }
+
+    /******************** GO TO LAUNCH ACT ***********/
     public void goToLaunch(){
         SPLASH_TIME=500;
         /*YoYo.with(Techniques.Shake)
                 .duration(1000)
                 .playOn(findViewById(R.id.imageView));*/
-        new ActMain.CierreDeAplicacion().execute();
+        new closeActMain().execute();
     }
-    public class CierreDeAplicacion extends AsyncTask {
+
+
+
+    public class closeActMain extends AsyncTask {
 
         private Intent myIntent;
 

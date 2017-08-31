@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp"
+    android:layout_marginTop="5dp"
+    android:id="@+id/bodyLinear"
+    android:orientation="vertical"
+    android:background="@drawable/bg_rc_item"
+    android:clickable="true">
+
+    <ImageView
+        android:id="@+id/itemImagen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/ic_launcher"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:weightSum="6"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- CONTENT WORD -->
+        <LinearLayout
+            android:layout_weight="5"
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/itemTitulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="2dp"
+                android:alpha="0.87"
+                android:gravity="left"
+                android:padding="4dp"
+                android:shadowColor="@color/teal800"
+                android:text="Ingenieria Sistemas"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/teal600"
+                android:textStyle="bold" />
+            <TextView
+                android:background="@drawable/boxshape_login"
+                android:id="@+id/txFirstDef"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:padding="3dp"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+                android:text="none"
+                android:textSize="16sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <!-- CONTENT DEFS -->
+            <LinearLayout
+                android:id="@+id/LayoutDef"
+                android:layout_marginBottom="10dp"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:tint="@color/colorBgGris"
+                        android:src="@drawable/ic_description_black_24dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp" />
+                    <TextView
+                        android:layout_marginRight="5dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Definitions"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"/>
+                </LinearLayout>
+                <com.devs.cnd.marvelousv.customview.NonScrollListView
+                    android:id="@+id/listDefs"
+                    android:divider="@color/grey10"
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <!-- CONTENT TRANS -->
+            <LinearLayout
+                android:id="@+id/LayoutTrans"
+                android:layout_marginBottom="10dp"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:tint="@color/colorBgGris"
+                        android:src="@drawable/ic_g_translate_black_24dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp" />
+                    <TextView
+                        android:layout_marginRight="5dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Translations"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"/>
+                </LinearLayout>
+                <com.devs.cnd.marvelousv.customview.NonScrollListView
+                    android:id="@+id/listTrans"
+                    android:divider="@color/grey10"
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <!-- CONTENT TAGS -->
+            <LinearLayout
+                android:orientation="vertical"
+                android:id="@+id/LayoutTag"
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:tint="@color/colorBgGris"
+                        android:src="@drawable/ic_tag_multiple_black_24dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp" />
+                    <TextView
+                        android:layout_marginRight="5dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tags"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"/>
+                </LinearLayout>
+                <android.support.v7.widget.RecyclerView
+                    android:visibility="gone"
+                    android:id="@+id/listTags"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+                        <LinearLayout
+                            android:id="@+id/LayoutTagsPar"
+                            android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                        </LinearLayout>
+                        <LinearLayout
+                            android:id="@+id/LayoutTagsImpar"
+                            android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                        </LinearLayout>
+
+
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+            </LinearLayout>
+
+
+
+
+        </LinearLayout>
+
+        <!-- PANEL OPTIONS -->
+        <LinearLayout
+            android:gravity="right"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+
+            <ImageView android:id="@+id/icBookmark"
+                android:tint="@color/colorBgGris"
+                android:layout_marginTop="5dp" android:layout_marginBottom="5dp"
+                android:layout_marginRight="10dp" android:layout_marginLeft="10dp"
+                android:src="@drawable/ic_bookmark_black_24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <ImageView android:id="@+id/icEdit"
+                android:tint="@color/colorBgGris"
+                android:layout_marginTop="5dp" android:layout_marginBottom="5dp"
+                android:layout_marginRight="10dp" android:layout_marginLeft="10dp"
+                android:src="@drawable/ic_mode_edit_black_24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <ImageView android:id="@+id/icDelete"
+                android:tint="@color/colorBgGris"
+                android:layout_marginTop="5dp" android:layout_marginBottom="5dp"
+                android:layout_marginRight="10dp" android:layout_marginLeft="10dp"
+                android:src="@drawable/ic_delete_black_24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <ImageView android:id="@+id/icShow"
+                android:tint="@color/colorBgGris"
+                android:layout_marginTop="5dp" android:layout_marginBottom="5dp"
+                android:layout_marginRight="10dp" android:layout_marginLeft="10dp"
+                android:src="@drawable/ic_arrow_drop_up_black_24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
+
+
+
+
+</LinearLayout>

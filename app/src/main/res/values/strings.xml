@@ -1,9 +1,12 @@
 <resources>
     <string name="app_name">MarvelousV</string>
     <string name="action_settings">Settings</string>
-    <string name="web_client_id">https://marvelousvoandroid.firebaseio.com</string>
     <string name="drawer_open">Open</string>
     <string name="drawer_close">close</string>
+
+    <!-- FACEBOOK VAR -->
+    <string name="facebook_app_id">591192517936776</string>
+    <string name="fb_login_protocol_scheme">fb591192517936776</string>
 
 
     <!-- VAR DIALOGS -->
@@ -12,4 +15,9 @@
     <string name="LG_GOOGLE">Google</string>
     <string name="LG_FACE">Facebook</string>
     <string name="LG_EMAIL">FireEmail</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="search_text">Search</string>
+    <string name="search_hint">Search</string>
 </resources>

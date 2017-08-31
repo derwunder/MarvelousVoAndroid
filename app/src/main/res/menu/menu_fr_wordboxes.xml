@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/search"
+        android:title="@string/search_text"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:orderInCategory="100"
+        app:showAsAction="always"
+        app:actionViewClass="android.support.v7.widget.SearchView" />
+    <item android:id="@+id/filter"
+        android:orderInCategory="200"
+        android:title="Filter"
+        android:icon="@drawable/ic_filter_list_white_24dp"
+        app:showAsAction="always">
+        <menu>
+            <group
+                android:id="@+id/groupFilter"
+                android:checkableBehavior="all" >
+                <item
+                    android:id="@+id/favorite"
+                    android:icon="@drawable/ic_favorite_white_24dp"
+                    android:title="Favorite"
+                    android:orderInCategory="100"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/gBorad"
+                    android:icon="@drawable/ic_language_white_24dp"
+                    android:title="Global Post"
+                    android:orderInCategory="200"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
+    </item>
+    <item android:id="@+id/sort"
+        android:orderInCategory="300"
+        android:title="Sort"
+        android:icon="@drawable/ic_sort_white_24dp"
+        app:showAsAction="always" >
+        <menu>
+            <group
+                android:id="@+id/groupSort"
+                android:checkableBehavior="single" >
+                <item
+                    android:id="@+id/sortAZ"
+                    android:icon="@drawable/ic_sort_by_alpha_white_24dp"
+                    android:title="Alphabetic"
+                    android:orderInCategory="100"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/sortRecent"
+                    android:icon="@drawable/ic_history_white_24dp"
+                    android:title="Last Viewed"
+                    android:orderInCategory="200"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/sortAdded"
+                    android:icon="@drawable/ic_schedule_white_24dp"
+                    android:title="Last Added"
+                    android:orderInCategory="300"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
+    </item>
+
+</menu>

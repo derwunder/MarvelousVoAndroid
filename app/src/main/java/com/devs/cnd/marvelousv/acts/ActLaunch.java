@@ -19,14 +19,25 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.devs.cnd.marvelousv.R;
+import com.devs.cnd.marvelousv.customview.RoundImage;
 import com.devs.cnd.marvelousv.dialogs.DialogUserPassForgot;
 import com.devs.cnd.marvelousv.events.ClickCallBack;
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -39,24 +50,31 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.squareup.picasso.Picasso;
 
 public class ActLaunch extends AppCompatActivity
                         implements ClickCallBack{
 
+    //VARS TIMES & Email view on
     private int SPLASH_TIME = 3000;
     boolean emailVs=false;
 
-    private ImageView google,face,email;
+    // VARS VIEW
+    private ImageView google,face,email, profilePic;
     private TextInputLayout txLyEmail, txLyPassword;
     private EditText edTxEmail, edTxPassword;
     private Switch newAccSwt;
 
-    private LinearLayout layoutLogin;
+    private FrameLayout frameFace;
+    private LinearLayout layoutLogin, LayoutTop;
     private Button btEmCreate, btEmLogin, btEmForgot;
+    private TextView logTx , lgtx1,lgtx2,txLogin;
 
+    //VARS SESSIONS AUTH
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
@@ -66,7 +84,10 @@ public class ActLaunch extends AppCompatActivity
     private static final int RC_SIGN_IN = 9001;
     private static final String TAG = "GoogleActivity";
 
-    //private TextView logText;
+    private CallbackManager faceCallbackManager;
+    private LoginButton loginButtonFace;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,14 +96,34 @@ public class ActLaunch extends AppCompatActivity
 
         mAuth = FirebaseAuth.getInstance();
         iniGoogleSignIn();
-        iniEmailSingIn();
-       // logText=(TextView)findViewById(R.id.logText);
+        iniFaceSignIn();
+        iniEmailSignIn();
 
-        //Social Ic as Action
-         face =(ImageView)findViewById(R.id.ic_face);
+        iniVarLayout();
 
     }
+    private void iniVarLayout(){
+        profilePic=(ImageView)findViewById(R.id.ProfilePic);
+        lgtx1=(TextView)findViewById(R.id.lgtx1);
+        lgtx2=(TextView)findViewById(R.id.lgtx2);
+        txLogin=(TextView)findViewById(R.id.txLogin);
+        frameFace =(FrameLayout)findViewById(R.id.FrameFace);
+        LayoutTop=(LinearLayout)findViewById(R.id.linearLayout);
+        logTx=(TextView)findViewById(R.id.logTx);
+        logTx.setText("Log");
+        logTx.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LoginManager.getInstance().logOut();
 
+
+                //LoginManager.getInstance().logInWithReadPermissions(ActLaunch.this, Arrays.asList("public_profile"));
+
+                Toast.makeText(ActLaunch.this, "LogOUt from face",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
     private void iniGoogleSignIn(){
         google =(ImageView)findViewById(R.id.ic_google);
         gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -108,11 +149,50 @@ public class ActLaunch extends AppCompatActivity
         google.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signIn();
+                signInGoogle();
             }
         });
     }
-    private void iniEmailSingIn(){
+    private void iniFaceSignIn(){
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        //AppEventsLogger.activateApp(this);
+
+        faceCallbackManager = CallbackManager.Factory.create();
+        loginButtonFace=(LoginButton)findViewById(R.id.login_button_face);
+        face =(ImageView)findViewById(R.id.ic_face);
+        face.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loginButtonFace.performClick();
+            }
+        });
+
+        loginButtonFace.setReadPermissions("email", "public_profile");
+        loginButtonFace.registerCallback(faceCallbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Log.d(TAG, "facebook:onSuccess:" + loginResult);
+                handleFacebookAccessToken(loginResult.getAccessToken());
+            }
+
+            @Override
+            public void onCancel() {
+                Log.d(TAG, "facebook:onCancel");
+                // [START_EXCLUDE]
+                updateUI(null);
+                // [END_EXCLUDE]
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                Log.d(TAG, "facebook:onError", error);
+                // [START_EXCLUDE]
+                updateUI(null);
+                // [END_EXCLUDE]
+            }
+        });
+    }
+    private void iniEmailSignIn(){
         email =(ImageView)findViewById(R.id.ic_email);
 
 
@@ -198,6 +278,7 @@ public class ActLaunch extends AppCompatActivity
         });
     }
 
+    /************** EMAIL SIGN IN FUCTIONS *************************/
     private void createAccountEmail(String email, String password) {
         Log.d(TAG, "createAccount:" + email);
         if (!validateForm()) {
@@ -214,6 +295,8 @@ public class ActLaunch extends AppCompatActivity
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success");
+                            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                            prefs.edit().putString("LoginProvider","FireEmail").apply();
                             FirebaseUser user = mAuth.getCurrentUser();
                             if(user!=null) {
                                 user.sendEmailVerification()
@@ -226,9 +309,9 @@ public class ActLaunch extends AppCompatActivity
                                             }
                                         });
                             }
+                            closeEmailForm();
                             updateUI(user);
-                            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                            prefs.edit().putString("LoginProvider","FireEmail").apply();
+
                             Toast.makeText(ActLaunch.this, "Wellcome",
                                     Toast.LENGTH_SHORT).show();
                         } else {
@@ -247,7 +330,7 @@ public class ActLaunch extends AppCompatActivity
         // [END create_user_with_email]
     }
     private void signInEmail(String email, String password) {
-        Log.d(TAG, "signIn:" + email);
+        Log.d(TAG, "signInGoogle:" + email);
         if (!validateForm()) {
             return;
         }
@@ -261,10 +344,12 @@ public class ActLaunch extends AppCompatActivity
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
                             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                             prefs.edit().putString("LoginProvider","FireEmail").apply();
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            closeEmailForm();
+                            updateUI(user);
+
                             Toast.makeText(ActLaunch.this, "Wellcome",
                                     Toast.LENGTH_SHORT).show();
                         } else {
@@ -285,7 +370,6 @@ public class ActLaunch extends AppCompatActivity
                 });
         // [END sign_in_with_email]
     }
-
     private boolean validateForm() {
         boolean valid = true;
 
@@ -307,74 +391,21 @@ public class ActLaunch extends AppCompatActivity
 
         return valid;
     }
+    private void closeEmailForm(){
+        newAccSwt.setVisibility(View.GONE);
+        email.setColorFilter(
+                ResourcesCompat.getColor(getResources(),R.color.colorGris700,null));
+        txLyEmail.setVisibility(View.GONE);
+        txLyPassword.setVisibility(View.GONE);
 
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        //logText.setText("you are here Act resul");
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            if (result.isSuccess()) {
-                // Google Sign In was successful, authenticate with Firebase
-                GoogleSignInAccount account = result.getSignInAccount();
-                Log.d("account: ","ur: "+account);
-                Log.d("account: ","token: "+account.getIdToken());
-                firebaseAuthWithGoogle(account);
-
-
-            } else {
-
-                // Google Sign In failed, update UI appropriately
-                // [START_EXCLUDE]
-                updateUI(null);
-                // [END_EXCLUDE]
-            }
-        }
+        newAccSwt.setChecked(false);
+        layoutLogin.setVisibility(View.GONE);
+        btEmCreate.setVisibility(View.GONE);
     }
+    /********** END EMAIL SIGN IN FUCTIONS *************************/
 
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
-        // [START_EXCLUDE silent]
-            //showProgressDialog();
-        // [END_EXCLUDE]
-
-
-
-        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
-
-                            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                            prefs.edit().putString("LoginProvider","Google").apply();
-                            Toast.makeText(ActLaunch.this, "Wellcome",
-                                    Toast.LENGTH_SHORT).show();
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(ActLaunch.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
-                        }
-
-                        // [START_EXCLUDE]
-                            //hideProgressDialog();
-                        // [END_EXCLUDE]
-                    }
-                });
-    }
-
-    private void signIn() {
+    /************** GOOGLE SIGN IN FUNCTIONS ***********************/
+    private void signInGoogle() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
@@ -404,9 +435,124 @@ public class ActLaunch extends AppCompatActivity
                     }
                 });
     }
+    /********** END GOOGLE SIGN IN FUNCTIONS ***********************/
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // Pass the activity result back to the Facebook SDK
+        faceCallbackManager.onActivityResult(requestCode, resultCode, data);
+
+
+        //logText.setText("you are here Act resul");
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            if (result.isSuccess()) {
+                // Google Sign In was successful, authenticate with Firebase
+                GoogleSignInAccount account = result.getSignInAccount();
+                Log.d("account: ","ur: "+account);
+                Log.d("account: ","token: "+account.getIdToken());
+                firebaseAuthWithGoogle(account);
+
+
+            } else {
+
+                // Google Sign In failed, update UI appropriately
+                // [START_EXCLUDE]
+              //  updateUI(null);
+                // [END_EXCLUDE]
+            }
+
+
+            logTx.setText("You are on act result");
+        }
+    }
+
+    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
+        // [START_EXCLUDE silent]
+            //showProgressDialog();
+        // [END_EXCLUDE]
+
+
+
+        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInWithCredential:success");
+                            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                            prefs.edit().putString("LoginProvider","Google").apply();
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            updateUI(user);
+
+                            Toast.makeText(ActLaunch.this, "Wellcome",
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            Toast.makeText(ActLaunch.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            updateUI(null);
+                        }
+
+                        // [START_EXCLUDE]
+                            //hideProgressDialog();
+                        // [END_EXCLUDE]
+                    }
+                });
+    }
+    private void handleFacebookAccessToken(AccessToken token) {
+        Log.d(TAG, "handleFacebookAccessToken:" + token);
+        // [START_EXCLUDE silent]
+        //showProgressDialog();
+        // [END_EXCLUDE]
+
+
+        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInWithCredential:success");
+                            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                            prefs.edit().putString("LoginProvider","Facebook").apply();
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            updateUI(user);
+
+                            Toast.makeText(ActLaunch.this, "Wellcome",
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            Toast.makeText(ActLaunch.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            updateUI(null);
+                        }
+
+                        // [START_EXCLUDE]
+                        // hideProgressDialog();
+                        // [END_EXCLUDE]
+                    }
+                });
+    }
+
+
+
 
     private void updateUI(FirebaseUser user) {
             //hideProgressDialog();
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        final String LoginProvider =prefs.getString("LoginProvider","DEFAULT");
+
 
         if (user != null ) {
 
@@ -414,25 +560,7 @@ public class ActLaunch extends AppCompatActivity
             /*google.setColorFilter(
                     ResourcesCompat.getColor(getResources(),R.color.teal600,null));*/
 
-            final int redColorAuth = ResourcesCompat.getColor(getResources(),R.color.red500,null);
-
-            final ValueAnimator colorAnim = ObjectAnimator.ofFloat(0f, 1f);
-            colorAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    float mul = (Float) animation.getAnimatedValue();
-                    int alphaOrange = adjustAlpha(redColorAuth, mul);
-                    google.setColorFilter(alphaOrange, PorterDuff.Mode.SRC_ATOP);
-                    if (mul == 0.0) {
-                        google.setColorFilter(ResourcesCompat.getColor(getResources(),R.color.red500,null));
-                    }
-                }
-            });
-
-            colorAnim.setDuration(700);
-            colorAnim.setRepeatMode(ValueAnimator.REVERSE);
-            colorAnim.setRepeatCount(-1);
-            colorAnim.start();
+            UIsessionActive(LoginProvider,user);
             goToMain();
 
 
@@ -442,7 +570,58 @@ public class ActLaunch extends AppCompatActivity
         }
     }
 
-    public int adjustAlpha(int color, float factor) {
+    public void UIsessionActive(final String LoginProvider,FirebaseUser user){
+        lgtx1.setVisibility(View.GONE);
+        lgtx2.setVisibility(View.GONE);
+        txLogin.setVisibility(View.VISIBLE);
+        final int colorAuthGoog = ResourcesCompat.getColor(getResources(),R.color.red500,null);
+        final int colorAuthFace = ResourcesCompat.getColor(getResources(),R.color.indigo500,null);
+        final int colorAuthEmail = ResourcesCompat.getColor(getResources(),R.color.teal500,null);
+
+        if(LoginProvider.equals("Google")){
+            LayoutTop.setBackgroundResource(R.drawable.waves_google3);
+            txLogin.setText("Login with Google");
+            frameFace.setVisibility(View.GONE);
+            email.setVisibility(View.GONE);
+            UIloginLogoColor(google,colorAuthGoog);
+        }else if(LoginProvider.equals("Facebook")){
+            LayoutTop.setBackgroundResource(R.drawable.waves_face);
+            txLogin.setText("Login with Facebook");
+            google.setVisibility(View.GONE);
+            email.setVisibility(View.GONE);
+            UIloginLogoColor(face,colorAuthFace);
+        }else if(LoginProvider.equals("FireEmail")){
+            LayoutTop.setBackgroundResource(R.drawable.waves_email);
+            txLogin.setText("Login with Email");
+            google.setVisibility(View.GONE);
+            frameFace.setVisibility(View.GONE);
+            UIloginLogoColor(email,colorAuthEmail);
+        }
+
+        profilePic.setVisibility(View.VISIBLE);
+        //profilePic.setIma
+        Picasso.with(this).load(user.getPhotoUrl()).transform(new RoundImage()).into(profilePic);
+    }
+    public void UIloginLogoColor(final ImageView logo, final int color){
+        final ValueAnimator colorAnim = ObjectAnimator.ofFloat(0f, 1f);
+        colorAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float mul = (Float) animation.getAnimatedValue();
+                int alphaOrange = UIadjustAlpha(color, mul);
+                logo.setColorFilter(alphaOrange, PorterDuff.Mode.SRC_ATOP);
+                if (mul == 0.0) {
+                    logo.setColorFilter(color);
+                }
+            }
+        });
+
+        colorAnim.setDuration(700);
+        colorAnim.setRepeatMode(ValueAnimator.REVERSE);
+        colorAnim.setRepeatCount(-1);
+        colorAnim.start();
+    }
+    public int UIadjustAlpha(int color, float factor) {
         int alpha = Math.round(Color.alpha(color) * factor);
         int red = Color.red(color);
         int green = Color.green(color);
@@ -528,4 +707,5 @@ public class ActLaunch extends AppCompatActivity
         }
 
     }
+    /*********** END LAUNCH MAIN *************************/
 }

@@ -13,7 +13,6 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="200dp"
-        android:layout_marginBottom="10dp"
         android:orientation="vertical"
         android:layout_centerHorizontal="true"
         android:gravity="center"
@@ -49,13 +48,12 @@
         android:id="@+id/scrollView2">
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="280dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="20dp"
         android:layout_marginBottom="5dp"
-        android:layout_marginRight="40dp"
-        android:layout_marginLeft="40dp"
         android:orientation="vertical"
+        android:layout_gravity="center_horizontal"
         android:background="@drawable/boxshape_login"
         android:id="@+id/linearLayout2">
 
@@ -82,6 +80,7 @@
         <LinearLayout
            android:layout_width="match_parent"
            android:layout_height="match_parent"
+            android:layout_marginBottom="10dp"
            android:orientation="horizontal"
             android:gravity="center">
             <ImageView
@@ -90,18 +89,42 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_google_grey600_48dp"/>
-            <ImageView
-                android:id="@+id/ic_face"
-                android:layout_margin="5dp"
+            <FrameLayout
+                android:id="@+id/FrameFace"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_facebook_box_grey600_48dp"/>
+                android:layout_height="wrap_content" >
+                <ImageView
+                    android:id="@+id/ic_face"
+                    android:layout_margin="5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_facebook_box_grey600_48dp"/>
+                <com.facebook.login.widget.LoginButton
+                    android:visibility="gone"
+                    android:id="@+id/login_button_face"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginBottom="30dp" />
+            </FrameLayout>
             <ImageView
                 android:id="@+id/ic_email"
                 android:layout_margin="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_email_grey600_48dp"/>
+            <TextView android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="18dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginBottom="20dp"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Login with Google"
+                android:textColor="@color/colorGris700"
+                android:id="@+id/txLogin" />
         </LinearLayout>
 
         <Switch
@@ -179,9 +202,28 @@
                 style="@style/Widget.AppCompat.Button.Borderless"/>
 
         </LinearLayout>
+
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="14dp" />
+            android:visibility="gone"
+            android:clickable="true"
+            android:id="@+id/logTx"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textStyle="bold"
+            android:textColor="@color/colorBgGris"
+            android:text="Text"/>
+
+        <ImageView
+            android:visibility="visible"
+            android:id="@+id/ProfilePic"
+            android:src="@drawable/bg_round"
+            android:layout_gravity="center"
+            android:maxWidth="120dp"
+            android:maxHeight="120dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"/>
 
 
 

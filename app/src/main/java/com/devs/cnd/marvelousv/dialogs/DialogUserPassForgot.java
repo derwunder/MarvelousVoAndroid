@@ -36,8 +36,6 @@ public class DialogUserPassForgot extends DialogFragment {
     private ImageView imgApp;
 
 
-
-
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         //return super.onCreateDialog(savedInstanceState);
