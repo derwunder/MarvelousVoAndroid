@@ -27,7 +27,7 @@ public class DialogWBWDelete extends DialogFragment {
 
         myApp=(MyApp)getContext().getApplicationContext();
         String source =
-                "<p>Are you sure that you want to delete the word term <strong>"+ w.getWordTerm()+"?</strong></p>"+
+                "<p>Are you sure that you want to delete the word term <strong>\""+ w.getWordTerm()+"\" ?</strong></p>"+
                         "<p>This will erase all Global share , Friend share, and the content of the box.</p>"+
                         "<p>Once done, <strong>it cannot be undo.</strong></p>";
 

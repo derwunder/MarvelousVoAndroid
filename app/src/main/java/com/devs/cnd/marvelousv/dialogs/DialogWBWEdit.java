@@ -24,8 +24,10 @@ import android.widget.TextView;
 
 import com.devs.cnd.marvelousv.R;
 import com.devs.cnd.marvelousv.adapters.words.AdaptLtDefEd;
+import com.devs.cnd.marvelousv.adapters.words.AdaptLtDefRcEd;
 import com.devs.cnd.marvelousv.adapters.words.AdaptLtTagEd;
 import com.devs.cnd.marvelousv.adapters.words.AdaptLtTransEd;
+import com.devs.cnd.marvelousv.adapters.words.AdaptLtTransRcEd;
 import com.devs.cnd.marvelousv.aplication.MyApp;
 import com.devs.cnd.marvelousv.customview.NonScrollListView;
 import com.devs.cnd.marvelousv.objects.Definition;
@@ -57,9 +59,11 @@ public class DialogWBWEdit extends DialogFragment implements View.OnClickListene
     private boolean bookmark =false;
 
     private NonScrollListView listDefs, listTrans;
-    private RecyclerView listTags;
+    private RecyclerView listTags, listTransRc, listDefsRc;
     private AdaptLtDefEd adaptLtDefEd;
+    private AdaptLtDefRcEd adaptLtDefRcEd;
     private AdaptLtTransEd adaptLtTransEd;
+    private AdaptLtTransRcEd adaptLtTransRcEd;
     private AdaptLtTagEd adaptLtTagEd;
     private Button btDef, btTrans, btTag;
     private EditText editTag;
@@ -108,29 +112,45 @@ public class DialogWBWEdit extends DialogFragment implements View.OnClickListene
 
         editTextWName.setText(w.getWordTerm());
 
-        listDefs=(NonScrollListView)rootView.findViewById(R.id.listDefs);
+        /*listDefs=(NonScrollListView)rootView.findViewById(R.id.listDefs);
         listDefs.setVisibility(View.VISIBLE);
         adaptLtDefEd= new AdaptLtDefEd(listDef,getContext());
-        listDefs.setAdapter(adaptLtDefEd);
+        listDefs.setAdapter(adaptLtDefEd);*/
+
+        listDefsRc=(RecyclerView)rootView.findViewById(R.id.listDefsRc);
+        listDefsRc.setVisibility(View.VISIBLE);
+        StaggeredGridLayoutManager sglmListDf =
+                new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
+        listDefsRc.setLayoutManager(sglmListDf);
+        adaptLtDefRcEd= new AdaptLtDefRcEd(getContext());
+        adaptLtDefRcEd.setListDefs(listDef);
+        listDefsRc.setAdapter(adaptLtDefRcEd);
         btDef=(Button)rootView.findViewById(R.id.btDef);
         btDef.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //adaptLtDefEd.add(new Definition("",""));
-                listDef.add(new Definition("",""));
-                adaptLtDefEd.setListDef(listDef);
+                adaptLtDefRcEd.addDef();
             }
         });
 
-        listTrans=(NonScrollListView)rootView.findViewById(R.id.listTrans);
+        /*listTrans=(NonScrollListView)rootView.findViewById(R.id.listTrans);
         listTrans.setVisibility(View.VISIBLE);
         adaptLtTransEd= new AdaptLtTransEd(listTran,getContext());
-        listTrans.setAdapter(adaptLtTransEd);
+        listTrans.setAdapter(adaptLtTransEd);*/
+
+        listTransRc=(RecyclerView)rootView.findViewById(R.id.listTransRc);
+        listTransRc.setVisibility(View.VISIBLE);
+        StaggeredGridLayoutManager sglmListTr =
+                new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
+        listTransRc.setLayoutManager(sglmListTr);
+        adaptLtTransRcEd= new AdaptLtTransRcEd(getContext());
+        adaptLtTransRcEd.setListTrans(listTran);
+        listTransRc.setAdapter(adaptLtTransRcEd);
         btTrans=(Button)rootView.findViewById(R.id.btTrans);
         btTrans.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                adaptLtTransEd.add(new Translation("",""));
+                adaptLtTransRcEd.addTrans();
             }
         });
 
@@ -184,7 +204,7 @@ public class DialogWBWEdit extends DialogFragment implements View.OnClickListene
         icCancel.setOnClickListener(this);
 
         TextView txTitle=(TextView)rootView.findViewById(R.id.txTitle);
-        txTitle.setText("New Word Box");
+        txTitle.setText("Edit Word");
 
         TextView txSave=(TextView)rootView.findViewById(R.id.txSave);
         txSave.setOnClickListener(this);
@@ -193,8 +213,8 @@ public class DialogWBWEdit extends DialogFragment implements View.OnClickListene
 
     public Word saveWord(){
         w.setWordTerm(editTextWName.getText().toString());
-        w.setDefinitions(adaptLtDefEd.getListDef());
-        w.setTranslations(adaptLtTransEd.getListTrans());
+        w.setDefinitions(adaptLtDefRcEd.getListDefs());
+        w.setTranslations(adaptLtTransRcEd.getListTrans());
         w.setTags(adaptLtTagEd.getListTag());
         w.setBookmark(bookmark);
 

@@ -111,11 +111,11 @@ public class Wordboxes {
 
     //DELETE WB WORD
     public void deleteWBW(final Word w , final String WBID){
-        int index=0;
+        /*int index=0;
         for(WordBox wb :listWordBox){
             if(wb.getId().equals(WBID)){
                 int inxWord=0;
-                for(Word word:listWordBox.get(index).getWords()){
+                for(Word word:wb.getWords()){ //word:listWordBox.get(index).getWords()
                     if(word.getId().equals(w.getId())){
                         listWordBox.get(index).removeWord(inxWord);
                         Toast.makeText(context,"WBW LOCAL DELETE ",Toast.LENGTH_SHORT).show();
@@ -123,6 +123,19 @@ public class Wordboxes {
                     }inxWord++;
                 }
             }index++;
+        }*/
+        for(int i=0; i<listWordBox.size();i++){
+            if(listWordBox.get(i).getId().equals(WBID)){
+                ArrayList<Word> wds = new ArrayList<>();
+                wds = listWordBox.get(i).getWords();
+                for(int j=0;j<wds.size();j++){
+                    if(wds.get(j).getId().equals(w.getId())){
+                        listWordBox.get(i).removeWord(j);
+                        Toast.makeText(context,"WBW LOCAL DELETE ",Toast.LENGTH_SHORT).show();
+                        wbRefCallback.onWBWordsRefSet(listWordBox.get(i).getWords());
+                    }
+                }
+            }
         }
 
     }

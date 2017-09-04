@@ -103,6 +103,11 @@
                     android:text="Definitions"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"/>
             </LinearLayout>
+            <android.support.v7.widget.RecyclerView
+                android:visibility="gone"
+                android:id="@+id/listDefsRc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
             <com.devs.cnd.marvelousv.customview.NonScrollListView
                 android:id="@+id/listDefs"
                 android:divider="@color/grey10"
@@ -147,6 +152,11 @@
                     android:text="Translations"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"/>
             </LinearLayout>
+            <android.support.v7.widget.RecyclerView
+                android:visibility="gone"
+                android:id="@+id/listTransRc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
             <com.devs.cnd.marvelousv.customview.NonScrollListView
                 android:id="@+id/listTrans"
                 android:divider="@color/grey10"
