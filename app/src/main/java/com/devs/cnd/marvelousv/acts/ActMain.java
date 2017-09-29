@@ -12,6 +12,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
@@ -29,12 +30,20 @@ import android.widget.TextView;
 
 import com.devs.cnd.marvelousv.R;
 import com.devs.cnd.marvelousv.aplication.MyApp;
+import com.devs.cnd.marvelousv.customview.RoundImage;
 import com.devs.cnd.marvelousv.dialogs.DialogWBAdd;
 import com.devs.cnd.marvelousv.dialogs.DialogWBWAdd;
 import com.devs.cnd.marvelousv.events.ClickCallBackMain;
 import com.devs.cnd.marvelousv.fragments.FrAllWbWords;
+import com.devs.cnd.marvelousv.fragments.FrFriendList;
+import com.devs.cnd.marvelousv.fragments.FrTabsFL;
+import com.devs.cnd.marvelousv.fragments.FrWbGFriend;
+import com.devs.cnd.marvelousv.fragments.FrWbGUFriend;
+import com.devs.cnd.marvelousv.fragments.FrWbGWords;
+import com.devs.cnd.marvelousv.fragments.FrWbGlobal;
 import com.devs.cnd.marvelousv.fragments.FrWbWords;
 import com.devs.cnd.marvelousv.fragments.FrWordboxes;
+import com.devs.cnd.marvelousv.objects.Friend;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -44,6 +53,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Picasso;
 
 public class ActMain extends AppCompatActivity
                         implements NavigationView.OnNavigationItemSelectedListener,
@@ -72,9 +82,14 @@ public class ActMain extends AppCompatActivity
 
     // Var FRAGMENT TYPE
     private int FR_WORDBOXES= 3001, FR_WB_WORDS=3002, FR_ALL_WB_WORDS=3003;
+    private int FR_FRIENDLIST= 3005, FR_WBG_FRIEND=3004, FR_WB_GLOBAL=3006;
+    private int FR_WBGU_FRIEND= 3044, FR_WBG_WORDS=3066;
+
+    //VAR Current Friend Data
+    private Friend currentFriend;
 
     // VAR ON BACK PRESS
-    private int stateBackPress=0;
+    private int stateBackPress=0, prevStateBackPress=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +98,7 @@ public class ActMain extends AppCompatActivity
 
         myApp = (MyApp) this.getApplicationContext();
         mAuth = FirebaseAuth.getInstance();
+        currentFriend= new Friend();
 
         iniGoogle();
 
@@ -96,8 +112,9 @@ public class ActMain extends AppCompatActivity
         mAppBarLayout.setActivated(false);
         mCollapsingToolbarLayout.setActivated(false);
 
-        fragmentChanger(FR_WORDBOXES);
-        fabChanger(FR_WORDBOXES);
+        //fragmentChanger(FR_WORDBOXES);
+        //fabChanger(FR_WORDBOXES);
+        checkFragmentInstace();
     }
 
     /******* AUTH CHECKING     ***********/
@@ -177,6 +194,7 @@ public class ActMain extends AppCompatActivity
         setSupportActionBar(mToolbar);
     }
     public void iniNavDrawer(){
+        final FirebaseUser user = mAuth.getCurrentUser();
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.drawer_open, R.string.drawer_close);
         mDrawerLayout.addDrawerListener(mDrawerToggle);
@@ -189,6 +207,17 @@ public class ActMain extends AppCompatActivity
         ImageView imgNav=(ImageView)view.findViewById(R.id.imgNavHeader);
         TextView text1=(TextView)view.findViewById(R.id.textNavHeader1);
         TextView text2=(TextView)view.findViewById(R.id.textNavHeader2);
+
+        String photoU="";
+        if(user.getPhotoUrl()!=null)
+            photoU= user.getPhotoUrl().toString();
+
+        Picasso.with(this)
+                .load(photoU)
+                .transform(new RoundImage()).into(imgNav);
+
+        text1.setText(user.getDisplayName());
+        text2.setText(user.getEmail());
 
         imgNav.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -307,6 +336,32 @@ public class ActMain extends AppCompatActivity
                 }
             });
         }
+        else if(where==FR_FRIENDLIST ){
+            mFab.setVisibility(View.VISIBLE);
+            mFab.setImageResource(R.drawable.ic_add_white_24dp);
+            mFab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+
+                    Snackbar.make(v, "New Friend", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+            });
+        }
+        else if(where==FR_WB_GLOBAL || where==FR_WBG_FRIEND || where==FR_WBGU_FRIEND){
+            mFab.setVisibility(View.GONE);
+            mFab.setImageResource(R.drawable.ic_add_white_24dp);
+            mFab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+
+                    Snackbar.make(v, "FR GLOBAL", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+            });
+        }
     }
     public void fabChanger(int where, final String id){
         if(where==FR_WB_WORDS){
@@ -328,6 +383,30 @@ public class ActMain extends AppCompatActivity
                             .setAction("Action", null).show();
                 }
             });
+        } else if(where==FR_WBGU_FRIEND) {
+            mFab.setVisibility(View.GONE);
+            mFab.setImageResource(R.drawable.ic_add_white_24dp);
+            mFab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+
+                    Snackbar.make(v, "Friend Boxes", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+            });
+        } else if(where==FR_WBG_WORDS) {
+            mFab.setVisibility(View.GONE);
+            mFab.setImageResource(R.drawable.ic_add_white_24dp);
+            mFab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+
+                    Snackbar.make(v, "WB GLOBAL", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+            });
         }
     }
     /******* FRAGMENT CHANGER ****/
@@ -344,12 +423,37 @@ public class ActMain extends AppCompatActivity
                     .replace(R.id.contenedor_base, FrAllWbWords.newInstance())
                     .commit();
         }
+        else if (where==FR_WBG_FRIEND){
+            fragmentManager.beginTransaction()
+                    .replace(R.id.contenedor_base, FrWbGFriend.newInstance())
+                    .commit();
+        }
+        else if (where==FR_FRIENDLIST){
+            fragmentManager.beginTransaction()
+                    .replace(R.id.contenedor_base, FrTabsFL.newInstance())
+                    .commit();
+        }
+        else if (where==FR_WB_GLOBAL){
+            fragmentManager.beginTransaction()
+                    .replace(R.id.contenedor_base, FrWbGlobal.newInstance())
+                    .commit();
+        }
     }
     public void fragmentChanger(int where, String id){
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (where==FR_WB_WORDS) {
             fragmentManager.beginTransaction()
                     .replace(R.id.contenedor_base, FrWbWords.newInstance(id))
+                    .commit();
+        }
+        if(where==FR_WBGU_FRIEND){
+            fragmentManager.beginTransaction()
+                    .replace(R.id.contenedor_base, FrWbGUFriend.newInstance(id))
+                    .commit();
+        }
+        if(where==FR_WBG_WORDS){
+            fragmentManager.beginTransaction()
+                    .replace(R.id.contenedor_base, FrWbGWords.newInstance(id,prevStateBackPress))
                     .commit();
         }
     }
@@ -359,12 +463,40 @@ public class ActMain extends AppCompatActivity
     public void onBackPressed() {
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
             mDrawerLayout.closeDrawer(GravityCompat.START);
-        }else if(stateBackPress==FR_WB_WORDS){
+        }
+        else if(stateBackPress==FR_WB_WORDS){
             stateBackPress=0;
             mCollapsingToolbarLayout.setTitle(getResources().getString(R.string.app_name));
             //mAppBarLayout.setExpanded(true,true);
             fragmentChanger(FR_WORDBOXES);
             fabChanger(FR_WORDBOXES);
+        }
+        else if(stateBackPress==FR_WBGU_FRIEND){
+            stateBackPress=0;
+            mCollapsingToolbarLayout.setTitle("Friend List");
+            fragmentChanger(FR_FRIENDLIST);
+            fabChanger(FR_FRIENDLIST);
+        }
+        else if(stateBackPress==FR_WBG_WORDS){
+            if(prevStateBackPress==FR_WB_GLOBAL){
+                fragmentChanger(FR_WB_GLOBAL);
+                fabChanger(FR_WB_GLOBAL);
+                mCollapsingToolbarLayout.setTitle("Global Board");
+                stateBackPress=0;
+            }
+            else if(prevStateBackPress==FR_WBG_FRIEND){
+                fragmentChanger(FR_WBG_FRIEND);
+                fabChanger(FR_WBG_FRIEND);
+                mCollapsingToolbarLayout.setTitle("Friend Board");
+                stateBackPress=FR_WBG_FRIEND;
+            }
+            else if(prevStateBackPress==FR_WBGU_FRIEND){
+                fragmentChanger(FR_WBGU_FRIEND,currentFriend.getId());
+                fabChanger(FR_WBGU_FRIEND,currentFriend.getId());
+                mCollapsingToolbarLayout.setTitle(currentFriend.getFrName()+"WB");
+                stateBackPress=FR_WBGU_FRIEND;
+            }
+
         }
 
         else{
@@ -405,6 +537,24 @@ public class ActMain extends AppCompatActivity
 
 
         }
+        else if(id ==  R.id.navigation_item_4){
+            mCollapsingToolbarLayout.setTitle("Friend Board");
+            fragmentChanger(FR_WBG_FRIEND);
+            fabChanger(FR_WBG_FRIEND);
+            stateBackPress=0;
+        }
+        else if(id ==  R.id.navigation_item_5){
+            mCollapsingToolbarLayout.setTitle("Friend List");
+            fragmentChanger(FR_FRIENDLIST);
+            fabChanger(FR_FRIENDLIST);
+            stateBackPress=0;
+        }
+        else if(id ==  R.id.navigation_item_6){
+            mCollapsingToolbarLayout.setTitle("Global Board");
+            fragmentChanger(FR_WB_GLOBAL);
+            fabChanger(FR_WB_GLOBAL);
+            stateBackPress=0;
+        }
         else if (id== R.id.nav_logout){
             signOut();
         }
@@ -444,6 +594,26 @@ public class ActMain extends AppCompatActivity
         stateBackPress=FR_WB_WORDS;
     }
 
+    @Override
+    public void onWordBoxGOpen(String id, String boxName, int mainFr) {
+        prevStateBackPress=mainFr;
+        fragmentChanger(FR_WBG_WORDS, id);
+        fabChanger(FR_WBG_WORDS,id);
+        mCollapsingToolbarLayout.setTitle(boxName);
+        stateBackPress=FR_WBG_WORDS;
+    }
+
+    @Override
+    public void onFIDOpen(String id, String FName) {
+        currentFriend.setId(id);
+        currentFriend.setFrName(FName);
+        fragmentChanger(FR_WBGU_FRIEND,id);
+        fabChanger(FR_WBGU_FRIEND,id);
+        mCollapsingToolbarLayout.setTitle(FName+" WB");
+        stateBackPress=FR_WBGU_FRIEND;
+
+    }
+
     /******************** GO TO LAUNCH ACT ***********/
     public void goToLaunch(){
         SPLASH_TIME=500;
@@ -454,6 +624,29 @@ public class ActMain extends AppCompatActivity
     }
 
 
+    public void checkFragmentInstace(){
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.contenedor_base);
+        if (currentFragment instanceof FrWordboxes) {
+        }
+        else if (currentFragment instanceof FrWbWords) {
+        }
+        else if (currentFragment instanceof FrWbGWords) {
+        }
+        else if (currentFragment instanceof FrWbGUFriend) {
+        }
+        else if (currentFragment instanceof FrWbGlobal) {
+        }
+        else if (currentFragment instanceof FrWbGFriend) {
+        }
+        else if (currentFragment instanceof FrTabsFL) {
+        }
+        else if (currentFragment instanceof FrAllWbWords) {
+        }
+        else{
+            fragmentChanger(FR_WORDBOXES);
+            fabChanger(FR_WORDBOXES);
+        }
+    }
 
     public class closeActMain extends AsyncTask {
 

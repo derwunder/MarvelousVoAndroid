@@ -1,49 +1,35 @@
 package com.devs.cnd.marvelousv.adapters;
 
 import android.content.Context;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.Html;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.devs.cnd.marvelousv.R;
-import com.devs.cnd.marvelousv.acts.ActMain;
 import com.devs.cnd.marvelousv.adapters.words.AdapLtDef;
 import com.devs.cnd.marvelousv.adapters.words.AdapLtTag;
 import com.devs.cnd.marvelousv.adapters.words.AdapLtTrans;
 import com.devs.cnd.marvelousv.aplication.MyApp;
 import com.devs.cnd.marvelousv.customview.NonScrollListView;
-import com.devs.cnd.marvelousv.dialogs.DialogWBEdit;
-import com.devs.cnd.marvelousv.dialogs.DialogWBWDelete;
-import com.devs.cnd.marvelousv.dialogs.DialogWBWEdit;
 import com.devs.cnd.marvelousv.events.ClickCallBackMain;
 import com.devs.cnd.marvelousv.objects.Definition;
-import com.devs.cnd.marvelousv.objects.Tag;
-import com.devs.cnd.marvelousv.objects.Translation;
 import com.devs.cnd.marvelousv.objects.Word;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 /**
- * Created by wunder on 7/16/17.
+ * Created by wunder on 9/23/17.
  */
 
-public class AdapterRcWBW extends RecyclerView.Adapter<AdapterRcWBW.RcWBWViewHolder>{
+public class AdapterRcWBGW extends RecyclerView.Adapter<AdapterRcWBGW.RcWBGWViewHolder>{
 
     private MyApp myApp;
 
@@ -55,10 +41,9 @@ public class AdapterRcWBW extends RecyclerView.Adapter<AdapterRcWBW.RcWBWViewHol
     private ClickCallBackMain clickCallBack;
     private Context context;
 
-    private String WBID="";
 
 
-    public AdapterRcWBW(Context context,ClickCallBackMain clickCallBack){
+    public AdapterRcWBGW(Context context,ClickCallBackMain clickCallBack){
         myApp=(MyApp)context.getApplicationContext();
 
         inflater=LayoutInflater.from(context);
@@ -67,18 +52,15 @@ public class AdapterRcWBW extends RecyclerView.Adapter<AdapterRcWBW.RcWBWViewHol
 
 
     }
-    public void setWBID(String WBID){
-        this.WBID=WBID;
-    }
+
     @Override
-    public RcWBWViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RcWBGWViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View root = inflater.inflate(R.layout.row_rc_fr_wb_words,parent,false);
-        // RcMenuViewHolder holder = new RcMenuViewHolder(root);
-        return new RcWBWViewHolder(root);
+        return new RcWBGWViewHolder(root);
     }
 
     @Override
-    public void onBindViewHolder(RcWBWViewHolder holder, int position) {
+    public void onBindViewHolder(RcWBGWViewHolder holder, int position) {
         Word w = listWord.get(position);
         boolean viewActive = listViewActive.get(position);
 
@@ -106,8 +88,8 @@ public class AdapterRcWBW extends RecyclerView.Adapter<AdapterRcWBW.RcWBWViewHol
 
         seeViewActive(viewActive,holder,w);
 
-
-
+        holder.icEdit.setVisibility(View.GONE);
+        holder.icDelete.setVisibility(View.GONE);
 
     }
 
@@ -116,18 +98,14 @@ public class AdapterRcWBW extends RecyclerView.Adapter<AdapterRcWBW.RcWBWViewHol
         return listWord.size();
     }
 
-
-
-
     //view Holder Loads Functions
-    public void seeViewActive(boolean viewActive, RcWBWViewHolder holder, Word w){
+    public void seeViewActive(boolean viewActive, AdapterRcWBGW.RcWBGWViewHolder holder, Word w){
         if(viewActive){
             holder.txFirstDef.setVisibility(View.GONE);
             holder.LayoutDef.setVisibility(View.VISIBLE);
             holder.LayoutTrans.setVisibility(View.VISIBLE);
             holder.LayoutTag.setVisibility(View.VISIBLE);
-            holder.icEdit.setVisibility(View.VISIBLE);
-            holder.icDelete.setVisibility(View.VISIBLE);
+
             holder.icShow.setImageDrawable(ContextCompat.getDrawable(context,R.drawable.ic_arrow_drop_up_black_24dp));
 
             setDefinitions(holder,w);
@@ -140,14 +118,12 @@ public class AdapterRcWBW extends RecyclerView.Adapter<AdapterRcWBW.RcWBWViewHol
             holder.LayoutDef.setVisibility(View.GONE);
             holder.LayoutTrans.setVisibility(View.GONE);
             holder.LayoutTag.setVisibility(View.GONE);
-            holder.icEdit.setVisibility(View.GONE);
-            holder.icDelete.setVisibility(View.GONE);
             holder.icShow.setImageDrawable(ContextCompat.getDrawable(context,R.drawable.ic_arrow_drop_down_black_24dp));
 
 
         }
     }
-    public void setDefinitions(RcWBWViewHolder holder, Word w){
+    public void setDefinitions(AdapterRcWBGW.RcWBGWViewHolder holder, Word w){
         if(w.getDefinitions().size()>1){
             holder.listDefs.setVisibility(View.VISIBLE);
             AdapLtDef adapLtDef= new AdapLtDef(w.getDefinitions(),context);
@@ -163,7 +139,7 @@ public class AdapterRcWBW extends RecyclerView.Adapter<AdapterRcWBW.RcWBWViewHol
             }
         }
     }
-    public void setTranslations(RcWBWViewHolder holder, Word w){
+    public void setTranslations(AdapterRcWBGW.RcWBGWViewHolder holder, Word w){
         if(w.getTranslations().size()>1){
             holder.listTrans.setVisibility(View.VISIBLE);
             AdapLtTrans adapLtTrans = new AdapLtTrans(w.getTranslations(),context);
@@ -179,7 +155,7 @@ public class AdapterRcWBW extends RecyclerView.Adapter<AdapterRcWBW.RcWBWViewHol
             }
         }
     }
-    public void setTags(RcWBWViewHolder holder, Word w){
+    public void setTags(AdapterRcWBGW.RcWBGWViewHolder holder, Word w){
         if(w.getTags().size()>1){
             holder.listTags.setVisibility(View.VISIBLE);
             holder.adapLtTag.setListTag(w.getTags());
@@ -206,7 +182,7 @@ public class AdapterRcWBW extends RecyclerView.Adapter<AdapterRcWBW.RcWBWViewHol
         notifyDataSetChanged();
     }
 
-    public class RcWBWViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class RcWBGWViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         LinearLayout linearLayout, LayoutDef, LayoutTrans,LayoutTag;
         LinearLayout LayoutTagsPar, LayoutTagsImpar;
         ImageView itemImage, icBookmar, icEdit, icDelete,icShow;
@@ -221,7 +197,7 @@ public class AdapterRcWBW extends RecyclerView.Adapter<AdapterRcWBW.RcWBWViewHol
 
 
 
-        public RcWBWViewHolder(View v) {
+        public RcWBGWViewHolder(View v) {
             super(v);
 
             linearLayout =(LinearLayout) itemView.findViewById(R.id.bodyLinear);
@@ -256,9 +232,6 @@ public class AdapterRcWBW extends RecyclerView.Adapter<AdapterRcWBW.RcWBWViewHol
             listTags.setAdapter(adapLtTag);
 
             linearLayout.setOnClickListener(this);
-            icDelete.setOnClickListener(this);
-            icEdit.setOnClickListener(this);
-            icBookmar.setOnClickListener(this);
 
 
             //definition = new TextView(context);
@@ -278,29 +251,8 @@ public class AdapterRcWBW extends RecyclerView.Adapter<AdapterRcWBW.RcWBWViewHol
                 }
                 notifyItemChanged(getAdapterPosition());
             }
-            if(v == v.findViewById(R.id.icBookmark)){
-                myApp.wordboxes.updateWBWFavoriteFB
-                        (listWord.get(getAdapterPosition()),WBID);
-            }
-            if(v == v.findViewById(R.id.icDelete)){
-                FragmentManager fragmentManager = ((ActMain)context).getSupportFragmentManager();
-                DialogWBWDelete dialogWBWDelete =new DialogWBWDelete();
-                dialogWBWDelete.setWBWord(listWord.get(getAdapterPosition()),WBID);
 
-                dialogWBWDelete.show(fragmentManager, "dialog");
-            }
-            if(v==v.findViewById(R.id.icEdit)){
-                FragmentManager fragmentManager = ((ActMain)context).getSupportFragmentManager();
-                DialogWBWEdit dialogWBWEdit =new DialogWBWEdit();
-                dialogWBWEdit.setWBId(WBID);
-                dialogWBWEdit.setWord(listWord.get(getAdapterPosition()));
-
-                //dialogWBEdit.show(fragmentManager, "dialog");
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                transaction.add(R.id.drawer_layout, dialogWBWEdit)
-                      .addToBackStack(null).commit();
-            }
         }
     }
+
 }

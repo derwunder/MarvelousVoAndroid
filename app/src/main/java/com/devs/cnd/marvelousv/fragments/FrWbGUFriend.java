@@ -2,20 +2,15 @@ package com.devs.cnd.marvelousv.fragments;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -25,78 +20,67 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.devs.cnd.marvelousv.R;
-import com.devs.cnd.marvelousv.adapters.AdapterRcWB;
+import com.devs.cnd.marvelousv.adapters.AdapterRcWBF;
+import com.devs.cnd.marvelousv.adapters.AdapterRcWBUF;
 import com.devs.cnd.marvelousv.api.FilterAndSort;
 import com.devs.cnd.marvelousv.aplication.MyApp;
-import com.devs.cnd.marvelousv.events.ClickCallBack;
-import com.devs.cnd.marvelousv.events.ClickCallBackFr;
 import com.devs.cnd.marvelousv.events.ClickCallBackMain;
-import com.devs.cnd.marvelousv.firebase.Wordboxes;
-import com.devs.cnd.marvelousv.objects.Word;
-import com.devs.cnd.marvelousv.objects.WordBox;
+import com.devs.cnd.marvelousv.firebase.WordboxesGF;
+import com.devs.cnd.marvelousv.objects.WordBoxG;
 
 import java.util.ArrayList;
 
+/**
+ * Created by wunder on 9/21/17.
+ */
 
-public class FrWordboxes extends Fragment implements Wordboxes.WBRefCallback{
+public class FrWbGUFriend extends Fragment implements WordboxesGF.WBGFRefCallback{
 
-    //Firebase  Ref
-    private Wordboxes wordboxes;
-
-
+    private static final String ARG_FID = "fid";
     private ClickCallBackMain clickCallBack;
 
 
-    private ImageView logo;
     private MyApp myApp;
     private SwipeRefreshLayout swipeRefresh;
     private RecyclerView rcWordboxes;
-    private AdapterRcWB adapterRcWB;
-
+    private AdapterRcWBUF adapterRcWBUF;
 
     private FilterAndSort filterAndSort;
-    private ArrayList<WordBox> listWordBox;
-    private boolean favorite=false, gBoard=false;
+    private ArrayList<WordBoxG> listWordBoxGF;
     private String currentSrh="";
-    private int currentSort=901;
-    private int SORT_AZ=901,SORT_RCNT=902,SORT_ADD=903;
 
-
-    public FrWordboxes() {
+    public FrWbGUFriend() {
         // Required empty public constructor
     }
 
-    public  static FrWordboxes newInstance(){
-        FrWordboxes frWordboxes=new FrWordboxes();
-        /*Bundle args = new Bundle();
-        args.putInt(ARG_NUMERO_SECCION, num_seccion);
-        fragment.setArguments(args);*/
-        return frWordboxes;
+    public  static FrWbGUFriend newInstance(String fid){
+        FrWbGUFriend frWbGUFriend=new FrWbGUFriend();
+        Bundle args = new Bundle();
+        args.putString(ARG_FID, fid);
+        frWbGUFriend.setArguments(args);
+        return frWbGUFriend;
     }
-
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         filterAndSort = new FilterAndSort();
-        listWordBox = new ArrayList<>();
-        favorite=false; gBoard=false;
+        listWordBoxGF = new ArrayList<>();
         currentSrh="";
-        currentSort=SORT_AZ;
+
+        myApp =(MyApp)getContext().getApplicationContext();
+
 
         setHasOptionsMenu(true);
     }
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_fr_wordboxes, menu);
+        inflater.inflate(R.menu.menu_fr_wordboxes_gf, menu);
         menu.findItem(R.id.search);
-        menu.findItem(R.id.sortAZ).setChecked(true);
+        menu.findItem(R.id.sort).setVisible(false);
+       // menu.findItem(R.id.sortAZ).setChecked(true);
         MenuItem menuItem = menu.findItem(R.id.search);
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(menuItem);
         searchView.setBackgroundResource(R.drawable.bg_searchview);
@@ -110,6 +94,7 @@ public class FrWordboxes extends Fragment implements Wordboxes.WBRefCallback{
                 //Intent search = new Intent(getActivity(), SearchResulsstsActivity.class);
                 //search.putExtra("SEARCH", word);
                 //startActivity(search);
+                Toast.makeText(getContext(),"Searching: "+word,Toast.LENGTH_SHORT).show();
                 return false;
             }
 
@@ -117,8 +102,8 @@ public class FrWordboxes extends Fragment implements Wordboxes.WBRefCallback{
             public boolean onQueryTextChange(String arg0) {
                 // Toast.makeText(getContext(),arg0,Toast.LENGTH_LONG).show();
                 currentSrh=arg0;
-                adapterRcWB.setWordBoxList(
-                        filterAndSort.WordBoxes(listWordBox,currentSrh,currentSort,favorite,gBoard));
+                adapterRcWBUF.setListWBG(
+                        filterAndSort.WordBoxesGFU(listWordBoxGF,currentSrh));
 
                 return false;
             }
@@ -134,38 +119,20 @@ public class FrWordboxes extends Fragment implements Wordboxes.WBRefCallback{
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        switch (id){
-            case R.id.favorite:{
-                item.setChecked(!favorite);
-                favorite=!favorite;
-                adapterRcWB.setWordBoxList(
-                        filterAndSort.WordBoxes(listWordBox,currentSrh,currentSort,favorite,gBoard));
-            }break;
-            case R.id.gBorad:{
-                item.setChecked(!gBoard);
-                gBoard=!gBoard;
-                adapterRcWB.setWordBoxList(
-                        filterAndSort.WordBoxes(listWordBox,currentSrh,currentSort,favorite,gBoard));
-            }break;
+       /* switch (id){
             case R.id.sortAZ:{
                 item.setChecked(true);
                 currentSort=SORT_AZ;
-                adapterRcWB.setWordBoxList(
-                        filterAndSort.WordBoxes(listWordBox,currentSrh,currentSort,favorite,gBoard));
+                adapterRcWBUF.setListWBG(
+                        filterAndSort.WordBoxesGF(listWordBoxGF,currentSrh,currentSort));
             }break;
-            case R.id.sortRecent:{
+            case R.id.sortFriendName:{
                 item.setChecked(true);
-                currentSort=SORT_RCNT;
-                adapterRcWB.setWordBoxList(
-                        filterAndSort.WordBoxes(listWordBox,currentSrh,currentSort,favorite,gBoard));
+                currentSort=SORT_FNAME;
+                adapterRcWBUF.setListWBG(
+                        filterAndSort.WordBoxesGF(listWordBoxGF,currentSrh,currentSort));
             }break;
-            case R.id.sortAdded:{
-                item.setChecked(true);
-                currentSort=SORT_ADD;
-                adapterRcWB.setWordBoxList(
-                        filterAndSort.WordBoxes(listWordBox,currentSrh,currentSort,favorite,gBoard));
-            }break;
-        }
+        }*/
         return super.onOptionsItemSelected(item);
     }
 
@@ -177,7 +144,7 @@ public class FrWordboxes extends Fragment implements Wordboxes.WBRefCallback{
         //logo.setColorFilter(Color.RED);
 
 
-        FrWordboxes frWordboxes =(FrWordboxes)
+        FrWbGUFriend frWbGUFriend =(FrWbGUFriend)
                 getActivity().getSupportFragmentManager().findFragmentById(R.id.contenedor_base);
         //.findFragmentByTag("FrWordboxes");
 
@@ -190,7 +157,7 @@ public class FrWordboxes extends Fragment implements Wordboxes.WBRefCallback{
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                myApp.wordboxes.wordboxesRefresh();
+                myApp.wordboxesGF.wordboxesGFLoadById(getArguments().getString(ARG_FID));
             }
         });
 
@@ -198,7 +165,7 @@ public class FrWordboxes extends Fragment implements Wordboxes.WBRefCallback{
 
 
         rcWordboxes=(RecyclerView)rootView.findViewById(R.id.recycleView);
-        adapterRcWB=new AdapterRcWB(getContext(),clickCallBack);
+        adapterRcWBUF =new AdapterRcWBUF(getContext(),clickCallBack);
 
        /* GridLayoutManager manager = new GridLayoutManager(getActivity(),
                 reGrid,GridLayoutManager.VERTICAL,false);*/
@@ -210,18 +177,18 @@ public class FrWordboxes extends Fragment implements Wordboxes.WBRefCallback{
         rcWordboxes.setLayoutManager(staggeredGridLayoutManager);
 
         //Espacio al final de la Vista de menu (RC)
-        OffsetDecorationMenu offsetDecorationMenu =
-                new OffsetDecorationMenu(75,5,getContext().getResources().getDisplayMetrics().density);
+        FrWbGFriend.OffsetDecorationMenu offsetDecorationMenu =
+                new FrWbGFriend.OffsetDecorationMenu(75,5,getContext().getResources().getDisplayMetrics().density);
         rcWordboxes.addItemDecoration(offsetDecorationMenu); //pasep
 
         rcWordboxes.setNestedScrollingEnabled(false);
         rcWordboxes.setSoundEffectsEnabled(true);
-        rcWordboxes.setAdapter(adapterRcWB);
+        rcWordboxes.setAdapter(adapterRcWBUF);
 
-        myApp =(MyApp)getContext().getApplicationContext();
-        myApp.wordboxes.onFrWordboxesActive(frWordboxes);
-        myApp.wordboxes.wordboxesLoad();
-        myApp.friendsRF.FriendsLoadMain();
+
+        adapterRcWBUF.setFID(getArguments().getString(ARG_FID));
+        myApp.wordboxesGF.onFrWordboxesGUFActive(frWbGUFriend);
+        myApp.wordboxesGF.wordboxesGFLoadById(getArguments().getString(ARG_FID));
 
         /*wordboxes=new Wordboxes(getContext());
         wordboxes.wordboxesLoad();
@@ -253,32 +220,24 @@ public class FrWordboxes extends Fragment implements Wordboxes.WBRefCallback{
         return Math.round(width/px);
     }
 
-
-    /********************* WORD BOXES REF ***************************/
     @Override
-    public void onWordboxesRefSet(ArrayList<WordBox> listWordBox) {
-        this.listWordBox=listWordBox;
+    public void onWordboxesGFRefSet(ArrayList<WordBoxG> listWordBoxGF) {
+        this.listWordBoxGF=listWordBoxGF;
 
-        adapterRcWB.setWordBoxList(
-                filterAndSort.WordBoxes(listWordBox,currentSrh,currentSort,favorite,gBoard));
+        adapterRcWBUF.setListWBG(listWordBoxGF);
+        adapterRcWBUF.setListWBG(
+                filterAndSort.WordBoxesGFU(listWordBoxGF,currentSrh));
 
         if(swipeRefresh.isRefreshing()){
             swipeRefresh.setRefreshing(false);
         }
-
     }
 
     @Override
-    public void onWordboxesRefFail() {
+    public void onWordboxesGFRefFail() {
         if(swipeRefresh.isRefreshing()){
             swipeRefresh.setRefreshing(false);
         }
-
-    }
-
-    @Override
-    public void onWBWordsRefSet(ArrayList<Word> listWord) {
-
     }
 
 
@@ -315,8 +274,6 @@ public class FrWordboxes extends Fragment implements Wordboxes.WBRefCallback{
 
         }
     }
-
-
 
     @Override
     public void onAttach(Context context) {

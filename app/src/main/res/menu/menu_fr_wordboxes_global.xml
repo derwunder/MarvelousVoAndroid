@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/search"
+        android:title="@string/search_text"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:orderInCategory="100"
+        app:showAsAction="always"
+        app:actionViewClass="android.support.v7.widget.SearchView" />
+    <item android:id="@+id/sort"
+        android:orderInCategory="300"
+        android:title="Sort"
+        android:icon="@drawable/ic_sort_white_24dp"
+        app:showAsAction="always" >
+        <menu>
+            <group
+                android:id="@+id/groupSort"
+                android:checkableBehavior="single" >
+                <item
+                    android:id="@+id/sortAZ"
+                    android:icon="@drawable/ic_sort_by_alpha_white_24dp"
+                    android:title="Alphabetic"
+                    android:orderInCategory="100"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/sortDownload"
+                    android:icon="@drawable/ic_file_download_white_24dp"
+                    android:title="Downloads"
+                    android:orderInCategory="200"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/sortLike"
+                    android:icon="@drawable/ic_thumb_up_white_24dp"
+
+                    android:title="Likes"
+                    android:orderInCategory="300"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/sortUpdate"
+                    android:icon="@drawable/ic_update_white_24dp"
+                    android:title="Updates"
+                    android:orderInCategory="400"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/sortPost"
+                    android:icon="@drawable/ic_face_white_24dp"
+                    android:title="Post"
+                    android:orderInCategory="500"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
+    </item>
+
+</menu>

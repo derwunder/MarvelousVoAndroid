@@ -8,15 +8,15 @@
             <item
                 android:id="@+id/navigation_item_1"
                 android:icon="@drawable/ic_view_module_black_24dp"
-                android:title="Cambia por String1" />
+                android:title="@string/WordBoxes" />
             <item
                 android:id="@+id/navigation_item_2"
                 android:icon="@drawable/ic_view_list_black_24dp"
-                android:title="Cambia por String2"/>
+                android:title="@string/AllWords"/>
             <item
                 android:id="@+id/navigation_item_3"
                 android:icon="@drawable/ic_assignment_black_24dp"
-                android:title="Cambia por String2"/>
+                android:title="@string/MyLearning"/>
         </group>
         </menu>
     </item>
@@ -27,11 +27,11 @@
             <item
                 android:id="@+id/navigation_item_4"
                 android:icon="@drawable/ic_supervisor_account_black_24dp"
-                android:title="Cambia por String1" />
+                android:title="@string/FriendBoard" />
             <item
                 android:id="@+id/navigation_item_5"
                 android:icon="@drawable/ic_contacts_black_24dp"
-                android:title="Cambia por String2"/>
+                android:title="@string/FriendList"/>
         </group>
         </menu>
     </item>
@@ -42,7 +42,7 @@
             <item
                 android:id="@+id/navigation_item_6"
                 android:icon="@drawable/ic_language_black_24dp"
-                android:title="Cambia por String1" />
+                android:title="@string/GlobalBoard" />
         </group>
         </menu>
     </item>
@@ -51,7 +51,7 @@
             <item
                 android:id="@+id/nav_logout"
                 android:icon="@drawable/ic_exit_to_app_black_24dp"
-                android:title="Logout (cambia x str)"
+                android:title="@string/Logout"
                 />
         </menu>
     </item>

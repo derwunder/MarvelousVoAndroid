@@ -101,10 +101,10 @@ public class AdapterRcWB extends RecyclerView.Adapter<AdapterRcWB.RcWBViewHolder
         holder.txWords.setText(wB.getWords().size()+" Words: ");
 
         if(wB.getFavorite())
-                holder.icFavorite.setColorFilter
+            holder.icFavorite.setColorFilter
                         (ResourcesCompat.getColor(context.getResources(),R.color.colorWhite,null));
         else
-                holder.icFavorite.setColorFilter
+            holder.icFavorite.setColorFilter
                         (ResourcesCompat.getColor(context.getResources(),R.color.Grey90_900,null));
 
         if(wB.getGBoard())
@@ -218,6 +218,7 @@ public class AdapterRcWB extends RecyclerView.Adapter<AdapterRcWB.RcWBViewHolder
 
 
             linearLayout.setOnClickListener(this);
+            myLearning.setOnClickListener(this);
         }
 
         public void makeToas(int position, String wbn){
@@ -230,6 +231,9 @@ public class AdapterRcWB extends RecyclerView.Adapter<AdapterRcWB.RcWBViewHolder
                 clickCallBack.onWordBoxOpen(
                         listWordBox.get(getAdapterPosition()).getId()
                 );
+            }
+            else if(v==v.findViewById(R.id.myLearning)){
+                myApp.wordboxes.updateWBLastCheckedAtFB(listWordBox.get(getAdapterPosition()));
             }
         }
 

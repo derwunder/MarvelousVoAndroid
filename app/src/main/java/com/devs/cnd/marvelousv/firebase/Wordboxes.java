@@ -230,7 +230,7 @@ public class Wordboxes {
         final WordBox WBhelper=getWordBox(WBID);
         final WordBox WB = new WordBox();
         WB.setId(WB.getId());
-        WB.setBoxName(WBhelper.getBoxName());
+        WB.setBoxName(WBhelper.getBoxName().toLowerCase());
         WB.setFavorite(WBhelper.getFavorite());
         WB.setgBoard(WBhelper.getGBoard());
         WB.setLastCheckedAt(WBhelper.getLastCheckedAt());
@@ -245,7 +245,7 @@ public class Wordboxes {
 
         Map<String, Object> wbGItems = new HashMap<>();
         if(WB.getGBoard()){
-            wbGItems.put("boxName", WB.getBoxName());
+            wbGItems.put("boxName", WB.getBoxName().toLowerCase());
             wbGItems.put("createdAt",WB.getCreatedAt());
             wbGItems.put("updatedAt",(-1*now.getTimeInMillis()));
             wbGItems.put("createBy",user.getUid());
@@ -268,6 +268,42 @@ public class Wordboxes {
                 Toast.makeText(context,"Fail post FB",Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private  void updateWBWFavorite(Word word, String WBID){
+        int index=0,inxW=0, posUPWB=0, posUPW=0;
+        for(WordBox wb: listWordBox){
+            if(wb.getId().equals(WBID)){
+                posUPWB=index; inxW=0;
+                for(Word w: wb.getWords()){
+                    if(w.getId().equals(word.getId())){
+                       posUPW=inxW;
+                    }inxW++;
+                }
+            }index++;
+        }
+        listWordBox.get(posUPWB).getWords().get(posUPW).setBookmark(!word.getBookmark());   //.setLastCheckedAt(w.getLastCheckedAt());
+        wbRefCallback.onWBWordsRefSet(listWordBox.get(posUPWB).getWords());
+    }
+    public void updateWBWFavoriteFB(final Word word, final String WBID){
+        final FirebaseUser user = mAuth.getCurrentUser();
+
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("users/"+user.getUid()+"/wordboxes/"+WBID+
+                "/words/"+word.getId()+"/bookmark", !word.getBookmark());
+
+        mDatabase.updateChildren(childUpdates).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(context,"WBW Update bookmark",Toast.LENGTH_SHORT).show();
+                updateWBWFavorite(word, WBID);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(context,"WBW Update bookmark FAIL ",Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     //ADD WB WORD
@@ -312,7 +348,7 @@ public class Wordboxes {
 
         Map<String, Object> wbGItems = new HashMap<>();
         if(WB.getGBoard()){
-            wbGItems.put("boxName", WB.getBoxName());
+            wbGItems.put("boxName", WB.getBoxName().toLowerCase());
             wbGItems.put("createdAt",WB.getCreatedAt());
             wbGItems.put("updatedAt",(-1*now.getTimeInMillis()));
             wbGItems.put("createBy",user.getUid());
@@ -337,6 +373,7 @@ public class Wordboxes {
         });
     }
 
+    /*** WORDBOX ***/
     //UPDATE WB
     private void updateWBFav(WordBox w){
         int index=0, posUp=0;
@@ -393,7 +430,7 @@ public class Wordboxes {
         Map<String, Object> wbGItems = new HashMap<>();
         if(!wb.getGBoard()){
 
-            wbGItems.put("boxName",wb.getBoxName());
+            wbGItems.put("boxName",wb.getBoxName().toLowerCase());
             wbGItems.put("createdAt",wb.getCreatedAt());
             wbGItems.put("updatedAt",(-1*now.getTimeInMillis()));
             wbGItems.put("createBy",user.getUid());
@@ -424,6 +461,37 @@ public class Wordboxes {
         });
 
 
+    }
+    private void updateWBLastCheckedAt(WordBox w){
+        int index=0, posUP=0;
+        for(WordBox wb: listWordBox){
+            if(wb.getId().equals(w.getId())){
+                posUP=index;
+            }index++;
+        }
+        listWordBox.get(posUP).setLastCheckedAt(w.getLastCheckedAt());
+        wbRefCallback.onWordboxesRefSet(listWordBox);
+    }
+    public void updateWBLastCheckedAtFB(final WordBox wb){
+        final FirebaseUser user = mAuth.getCurrentUser();
+        Calendar now =Calendar.getInstance();
+        wb.setLastCheckedAt(now.getTimeInMillis());
+
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("users/"+user.getUid()+"/wordboxes/"+wb.getId()+"/lastCheckedAt", wb.getLastCheckedAt());
+
+        mDatabase.updateChildren(childUpdates).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(context,"WB Update IT LCA",Toast.LENGTH_SHORT).show();
+                updateWBLastCheckedAt(wb);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(context,"WB Update FAIL LCA",Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     //DELETE WB

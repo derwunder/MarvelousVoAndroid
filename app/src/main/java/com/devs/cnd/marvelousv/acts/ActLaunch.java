@@ -545,8 +545,6 @@ public class ActLaunch extends AppCompatActivity
     }
 
 
-
-
     private void updateUI(FirebaseUser user) {
             //hideProgressDialog();
 
@@ -646,8 +644,6 @@ public class ActLaunch extends AppCompatActivity
             mAuth.removeAuthStateListener(mAuthListener);
         }*/
     }
-
-
 
 
     /*************** CLICKCALLBACK INTERFACE *************************/
