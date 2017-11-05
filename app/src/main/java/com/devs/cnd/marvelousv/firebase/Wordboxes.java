@@ -16,6 +16,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -215,6 +216,12 @@ public class Wordboxes {
         String photoU="";
         if(user.getPhotoUrl()!=null)
             photoU= user.getPhotoUrl().toString();
+        for(UserInfo profile : user.getProviderData()) {
+            if (profile.getProviderId().equals("facebook.com")) {
+                if(!photoU.contains("firebase"))
+                    photoU="https://graph.facebook.com/" + profile.getUid() + "/picture?height=500";
+            }
+        }
 
 
         word.setId(word.getId());
@@ -326,7 +333,12 @@ public class Wordboxes {
         String photoU="";
         if(user.getPhotoUrl()!=null)
             photoU= user.getPhotoUrl().toString();
-
+        for(UserInfo profile : user.getProviderData()) {
+            if (profile.getProviderId().equals("facebook.com")) {
+                if(!photoU.contains("firebase"))
+                    photoU="https://graph.facebook.com/" + profile.getUid() + "/picture?height=500";
+            }
+        }
 
         word.setId(WBWKey);
         if(word.getDefinitions().size()==0){
@@ -423,6 +435,13 @@ public class Wordboxes {
         String photoU="";
         if(user.getPhotoUrl()!=null)
             photoU= user.getPhotoUrl().toString();
+
+        for(UserInfo profile : user.getProviderData()) {
+            if (profile.getProviderId().equals("facebook.com")) {
+                if(!photoU.contains("firebase"))
+                    photoU="https://graph.facebook.com/" + profile.getUid() + "/picture?height=500";
+            }
+        }
 
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("users/"+user.getUid()+"/wordboxes/"+wb.getId()+"/gBoard", !wb.getGBoard());

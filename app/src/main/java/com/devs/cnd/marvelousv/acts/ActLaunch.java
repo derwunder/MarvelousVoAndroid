@@ -54,6 +54,7 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.UserInfo;
 import com.squareup.picasso.Picasso;
 
 public class ActLaunch extends AppCompatActivity
@@ -598,7 +599,17 @@ public class ActLaunch extends AppCompatActivity
 
         profilePic.setVisibility(View.VISIBLE);
         //profilePic.setIma
-        Picasso.with(this).load(user.getPhotoUrl()).transform(new RoundImage()).into(profilePic);
+
+        String photoU="";
+        if(user.getPhotoUrl()!=null)
+            photoU= user.getPhotoUrl().toString();
+        for(UserInfo profile : user.getProviderData()) {
+            if (profile.getProviderId().equals("facebook.com")) {
+                if(!photoU.contains("firebase"))
+                    photoU="https://graph.facebook.com/" + profile.getUid() + "/picture?height=500";
+            }
+        }
+        Picasso.with(this).load(photoU).transform(new RoundImage()).into(profilePic);
     }
     public void UIloginLogoColor(final ImageView logo, final int color){
         final ValueAnimator colorAnim = ObjectAnimator.ofFloat(0f, 1f);

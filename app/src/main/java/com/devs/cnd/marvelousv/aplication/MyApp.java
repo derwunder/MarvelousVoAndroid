@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 
 import com.devs.cnd.marvelousv.firebase.FriendsRF;
+import com.devs.cnd.marvelousv.firebase.UserDataRF;
 import com.devs.cnd.marvelousv.firebase.Wordboxes;
 import com.devs.cnd.marvelousv.firebase.WordboxesGF;
 import com.devs.cnd.marvelousv.fragments.FrWordboxes;
@@ -18,6 +19,7 @@ public class MyApp extends Application {
     public Wordboxes wordboxes;
     public WordboxesGF wordboxesGF;
     public FriendsRF friendsRF;
+    public UserDataRF userDataRF;
 
 
 
@@ -32,6 +34,7 @@ public class MyApp extends Application {
         wordboxes= new Wordboxes(getApplicationContext());
         wordboxesGF= new WordboxesGF(getApplicationContext());
         friendsRF= new FriendsRF(getApplicationContext());
+        userDataRF= new UserDataRF(getApplicationContext());
     }
 
 

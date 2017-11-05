@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.devs.cnd.marvelousv.R;
@@ -37,6 +38,7 @@ import com.devs.cnd.marvelousv.events.ClickCallBackMain;
 import com.devs.cnd.marvelousv.fragments.FrAllWbWords;
 import com.devs.cnd.marvelousv.fragments.FrFriendList;
 import com.devs.cnd.marvelousv.fragments.FrTabsFL;
+import com.devs.cnd.marvelousv.fragments.FrUserProfile;
 import com.devs.cnd.marvelousv.fragments.FrWbGFriend;
 import com.devs.cnd.marvelousv.fragments.FrWbGUFriend;
 import com.devs.cnd.marvelousv.fragments.FrWbGWords;
@@ -44,6 +46,7 @@ import com.devs.cnd.marvelousv.fragments.FrWbGlobal;
 import com.devs.cnd.marvelousv.fragments.FrWbWords;
 import com.devs.cnd.marvelousv.fragments.FrWordboxes;
 import com.devs.cnd.marvelousv.objects.Friend;
+import com.devs.cnd.marvelousv.objects.Word;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -53,6 +56,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 import com.squareup.picasso.Picasso;
 
 public class ActMain extends AppCompatActivity
@@ -84,6 +88,7 @@ public class ActMain extends AppCompatActivity
     private int FR_WORDBOXES= 3001, FR_WB_WORDS=3002, FR_ALL_WB_WORDS=3003;
     private int FR_FRIENDLIST= 3005, FR_WBG_FRIEND=3004, FR_WB_GLOBAL=3006;
     private int FR_WBGU_FRIEND= 3044, FR_WBG_WORDS=3066;
+    private int FR_USERPROFILE= 3007;
 
     //VAR Current Friend Data
     private Friend currentFriend;
@@ -116,6 +121,8 @@ public class ActMain extends AppCompatActivity
         //fabChanger(FR_WORDBOXES);
         checkFragmentInstace();
     }
+
+
 
     /******* AUTH CHECKING     ***********/
     private void iniGoogle(){
@@ -207,10 +214,18 @@ public class ActMain extends AppCompatActivity
         ImageView imgNav=(ImageView)view.findViewById(R.id.imgNavHeader);
         TextView text1=(TextView)view.findViewById(R.id.textNavHeader1);
         TextView text2=(TextView)view.findViewById(R.id.textNavHeader2);
+        LinearLayout linearNav=(LinearLayout)view.findViewById(R.id.linearNav);
 
         String photoU="";
         if(user.getPhotoUrl()!=null)
             photoU= user.getPhotoUrl().toString();
+
+        for(UserInfo profile : user.getProviderData()) {
+            if (profile.getProviderId().equals("facebook.com")) {
+                if(!photoU.contains("firebase"))
+                    photoU="https://graph.facebook.com/" + profile.getUid() + "/picture?height=500";
+            }
+        }
 
         Picasso.with(this)
                 .load(photoU)
@@ -219,26 +234,42 @@ public class ActMain extends AppCompatActivity
         text1.setText(user.getDisplayName());
         text2.setText(user.getEmail());
 
+        linearNav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToUserProfile();
+            }
+        });
         imgNav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               /* UserRegistro userRegistro=MyApp.getWritableDatabase().getUserRegistro();
-
-                if(!userRegistro.getNick_name().equals("noAsig")){
-                    DialogPassUserProfile dialogPassUserProfile= new DialogPassUserProfile();
-                    dialogPassUserProfile.show(getSupportFragmentManager(),"Log In");
-                }else {
-                    DialogRegiToClan dialogRegiToClan = new DialogRegiToClan();
-                    dialogRegiToClan.show(getSupportFragmentManager(), "Regi");
-                }*/
-
+               goToUserProfile();
+            }
+        });
+        text1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToUserProfile();
+            }
+        });
+        text2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToUserProfile();
             }
         });
 
     }
+    public void goToUserProfile(){
+        stateBackPress=0;
+        mCollapsingToolbarLayout.setTitle("My Profile");
+        fragmentChanger(FR_USERPROFILE);
+        fabChanger(FR_USERPROFILE);
+        mDrawerLayout.closeDrawer(GravityCompat.START);
+    }
     public void iniFab() {
         mFab = (FloatingActionButton) findViewById(R.id.fab);
-        mFab.setVisibility(View.VISIBLE);
+        mFab.setVisibility(View.GONE);
         mFab.setImageResource(R.drawable.ic_email_white_36dp);
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -349,7 +380,7 @@ public class ActMain extends AppCompatActivity
                 }
             });
         }
-        else if(where==FR_WB_GLOBAL || where==FR_WBG_FRIEND || where==FR_WBGU_FRIEND){
+        else if(where==FR_WB_GLOBAL || where==FR_WBG_FRIEND || where==FR_WBGU_FRIEND || where==FR_USERPROFILE){
             mFab.setVisibility(View.GONE);
             mFab.setImageResource(R.drawable.ic_add_white_24dp);
             mFab.setOnClickListener(new View.OnClickListener() {
@@ -438,6 +469,12 @@ public class ActMain extends AppCompatActivity
                     .replace(R.id.contenedor_base, FrWbGlobal.newInstance())
                     .commit();
         }
+        else if (where==FR_USERPROFILE){
+            fragmentManager.beginTransaction()
+                    .replace(R.id.contenedor_base, FrUserProfile.newInstance())
+                    .commit();
+        }
+
     }
     public void fragmentChanger(int where, String id){
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -641,6 +678,8 @@ public class ActMain extends AppCompatActivity
         else if (currentFragment instanceof FrTabsFL) {
         }
         else if (currentFragment instanceof FrAllWbWords) {
+        }
+        else if(currentFragment instanceof FrUserProfile){
         }
         else{
             fragmentChanger(FR_WORDBOXES);
